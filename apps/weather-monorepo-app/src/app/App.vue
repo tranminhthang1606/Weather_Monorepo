@@ -12,7 +12,7 @@
 
     <footer class="bg-white shadow-sm p-4 mt-8 fixed bottom-0 w-full">
       <div class="container mx-auto text-center text-gray-600">
-        <p>&copy; 2025 Weather App. Powered by OpenWeather API.</p>
+        <p>&copy; 2025 Weather App.</p>
       </div>
     </footer>
   </div>
