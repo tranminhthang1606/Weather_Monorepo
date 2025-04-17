@@ -1,0 +1,8 @@
+{
+  "name": "@weather-nx-app/weather-monorepo-app",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "weather-monorepo-app"
+  }
+}
