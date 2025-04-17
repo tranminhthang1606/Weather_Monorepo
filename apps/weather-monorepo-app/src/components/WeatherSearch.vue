@@ -7,7 +7,7 @@
         @keyup.enter="$emit('search')"
         type="text"
         placeholder="Nhập tên thành phố..."
-        class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mr-2"
       />
       <button
         @click="$emit('search')"
