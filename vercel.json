@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "nx build weather-app",
+  "buildCommand": "nx build weather-monorepo-app",
   "outputDirectory": "dist/apps/weather-monorepo-app",
   "installCommand": "npm install",
   "framework": "vite",
