@@ -7,15 +7,6 @@
       "path": "./apps/weather-monorepo-app"
     },
     {
-      "path": "./packages/weather-ui"
-    },
-    {
-      "path": "./packages/api"
-    },
-    {
-      "path": "./weather-app"
-    },
-    {
       "path": "./packages/api"
     },
     {
