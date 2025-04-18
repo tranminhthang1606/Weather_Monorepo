@@ -2,6 +2,10 @@
   "name": "@weather-nx-app/weather-monorepo-app",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
   "nx": {
     "name": "weather-monorepo-app"
   }
