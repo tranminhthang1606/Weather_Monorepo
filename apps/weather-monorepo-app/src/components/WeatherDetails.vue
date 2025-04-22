@@ -142,7 +142,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { formatDate, formatTemperature, formatWindSpeed, formatVisibility, formatTime } from '@weather-monorepo/utils'
 import WeatherAnimation from "@/components/WeatherAnimation.vue";
 
@@ -152,4 +152,5 @@ defineProps({
     required: true
   }
 })
+
 </script>
