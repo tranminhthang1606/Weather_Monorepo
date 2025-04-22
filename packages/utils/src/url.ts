@@ -1,19 +1,23 @@
+export interface UrlParams {
+  [key: string]: string | number | boolean | null | undefined;
+}
 
-export function updateUrlParams(params, replace = false) {
+
+export function updateUrlParams(params: UrlParams, replace: boolean = false): void {
   if (typeof window === 'undefined') return; // Kiểm tra nếu đang chạy trên server
 
   const url = new URL(window.location.href);
 
-  // Cập nhật hoặc thêm mới các params
+
   Object.entries(params).forEach(([key, value]) => {
     if (value === null || value === undefined || value === '') {
       url.searchParams.delete(key);
     } else {
-      url.searchParams.set(key, value);
+      url.searchParams.set(key, String(value));
     }
   });
 
-  // Cập nhật URL mà không reload trang
+
   if (replace) {
     window.history.replaceState({}, '', url);
   } else {
@@ -21,7 +25,7 @@ export function updateUrlParams(params, replace = false) {
   }
 }
 
-export function getUrlParam(key, defaultValue = '') {
+export function getUrlParam(key: string, defaultValue: string = ''): string {
   if (typeof window === 'undefined') return defaultValue;
 
   const url = new URL(window.location.href);
@@ -29,11 +33,11 @@ export function getUrlParam(key, defaultValue = '') {
 }
 
 
-export function getAllUrlParams() {
+export function getAllUrlParams(): UrlParams {
   if (typeof window === 'undefined') return {};
 
   const url = new URL(window.location.href);
-  const params = {};
+  const params: UrlParams = {};
 
   for (const [key, value] of url.searchParams.entries()) {
     params[key] = value;
@@ -43,7 +47,7 @@ export function getAllUrlParams() {
 }
 
 
-export function clearUrlParams() {
+export function clearUrlParams(): void {
   if (typeof window === 'undefined') return;
 
   const url = new URL(window.location.href);

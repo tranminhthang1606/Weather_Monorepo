@@ -3,14 +3,15 @@
     class="weather-app min-h-screen p-4 md:p-8 flex flex-col items-center justify-center transition-all duration-1000 w-full"
     :class="backgroundClass"
   >
-    <div class="w-full max-w-4xl backdrop-blur-md bg-white/20 rounded-3xl shadow-2xl overflow-hidden border border-white/30">
+    <div
+      class="w-full max-w-4xl backdrop-blur-md bg-white/20 rounded-3xl shadow-2xl overflow-hidden border border-white/30">
       <div class="relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90"></div>
         <div class="relative p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div class="text-center md:text-left">
             <h1 class="text-3xl md:text-4xl font-bold text-white flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+                <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/>
               </svg>
               Weather App
             </h1>
@@ -32,14 +33,16 @@
         <div v-if="error" class="mt-6 p-4 bg-red-100/80 backdrop-blur-sm border border-red-200 rounded-xl">
           <p class="text-red-600 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"/>
             </svg>
             {{ error }}
           </p>
         </div>
 
 
-        <WeatherSkeleton v-if="isLoading && !weather" class="mt-6" />
+        <WeatherSkeleton v-if="isLoading && !weather" class="mt-6"/>
 
 
         <transition
@@ -78,8 +81,8 @@
 
   </div>
 </template>
-<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+<script setup lang="ts">
+import {ref, computed, onMounted, onUnmounted, watch, Ref} from 'vue'
 import WeatherSearch from './WeatherSearch.vue'
 import WeatherDetails from './WeatherDetails.vue'
 import RecentSearches from './RecentSearches.vue'
@@ -91,7 +94,38 @@ import {
 } from '@weather-monorepo/hooks'
 import WeatherSkeleton from "@/components/WeatherSkeleton.vue";
 
-const backgroundClass = computed(() => {
+interface WeatherOptions {
+  units: 'metric' | 'imperial' | 'standard',
+  lang: string
+}
+
+interface UrlParams {
+  city?: string;
+  units?: string;
+  lang?: string;
+
+  [key: string]: string | undefined;
+}
+
+interface UrlParamsHook {
+  params: Ref<UrlParams>;
+  setParams: (params: UrlParams) => void;
+  getParam: (key: string, defaultValue?: string) => string | undefined;
+  cleanup: () => void;
+}
+
+interface GeolocationHook {
+  getCurrentPosition: () => Promise<GeolocationPosition>;
+  error: any;
+  isLoading: boolean;
+}
+
+interface LocalStorageHook<T> {
+  value: T;
+  setValue: (value: T) => void;
+}
+
+const backgroundClass = computed<string>(() => {
   const hour = new Date().getHours();
 
 
@@ -140,7 +174,7 @@ const backgroundClass = computed(() => {
 });
 
 
-const isDevelopment = computed(() => {
+const isDevelopment = computed<boolean>(() => {
   return import.meta.env.MODE === 'development' ||
     import.meta.env.DEV ||
     window.location.hostname === 'localhost' ||
@@ -148,10 +182,10 @@ const isDevelopment = computed(() => {
 });
 
 
-const { params, setParams, getParam, cleanup } = useUrlParams()
+const {params, setParams, getParam, cleanup} = useUrlParams() as UrlParamsHook
 const initialOptions = {
-  units: getParam('units', 'metric'),
-  lang: getParam('lang', 'vi')
+  units: getParam('units', 'metric') as WeatherOptions['units'],
+  lang: getParam('lang', 'vi') as WeatherOptions['lang']
 }
 const {
   weather,
@@ -162,14 +196,14 @@ const {
   fetchWeatherByCity,
   fetchWeatherByCoords
 } = useWeather(initialOptions)
-const { getCurrentPosition } = useGeolocation()
-const recentSearches = useLocalStorage('recentSearches', [])
+const {getCurrentPosition} = useGeolocation() as GeolocationHook
+const recentSearches = useLocalStorage('recentSearches', []) as LocalStorageHook<string[]>
 
 
-const searchQuery = ref(getParam('city', ''))
+const searchQuery = ref<string>(getParam('city', ''))
 
 
-const searchLocation = async () => {
+const searchLocation = async (): Promise<void> => {
   if (!searchQuery.value.trim()) return
 
 
@@ -183,38 +217,40 @@ const searchLocation = async () => {
 
   if (data) {
 
-    if (!recentSearches.value.includes(searchQuery.value)) {
-      recentSearches.setValue([
-        searchQuery.value,
-        ...recentSearches.value.filter(item => item !== searchQuery.value).slice(0, 4)
-      ])
+    if (data) {
+      if (!recentSearches.value.includes(searchQuery.value)) {
+        recentSearches.setValue([
+          searchQuery.value,
+          ...recentSearches.value.filter(item => item !== searchQuery.value).slice(0, 4)
+        ]);
+      }
     }
   }
 }
 
-const loadRecentSearch = (city) => {
+const loadRecentSearch = (city: string) => {
   searchQuery.value = city
   searchLocation()
 }
 
-const updateSettings = (newSettings) => {
+// const updateSettings = (newSettings: Partial<WeatherOptions>) => {
+//
+//   updateOptions(newSettings)
+//
+//
+//   setParams({
+//     units: newSettings.units,
+//     lang: newSettings.lang
+//   })
+//
+//
+//   if (searchQuery.value) {
+//     searchLocation()
+//   }
+// }
 
-  updateOptions(newSettings)
 
-
-  setParams({
-    units: newSettings.units,
-    lang: newSettings.lang
-  })
-
-
-  if (searchQuery.value) {
-    searchLocation()
-  }
-}
-
-
-watch(() => params.value, (newParams) => {
+watch(() => params.value, (newParams: UrlParams) => {
   const updates = {}
   let needsRefresh = false
 
@@ -239,7 +275,7 @@ watch(() => params.value, (newParams) => {
   if (needsRefresh && searchQuery.value) {
     fetchWeatherByCity(searchQuery.value)
   }
-}, { deep: true })
+}, {deep: true})
 
 
 onMounted(async () => {
@@ -259,9 +295,9 @@ onMounted(async () => {
         searchQuery.value = data.name
 
         setParams({
-          city: data.name,
-          units: weatherOptions.units,
-          lang: weatherOptions.lang
+          city: data?.name,
+          units: weatherOptions?.units,
+          lang: weatherOptions?.lang
         })
       }
     } catch (err) {

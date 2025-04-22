@@ -23,17 +23,21 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+<script setup lang="ts">
+import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
 
-const props = defineProps({
-  weatherCode: {
-    type: String,
-    required: true
-  }
-});
+type WeatherCode = string;
+type WeatherType = 'clear' | 'clouds' | 'rain' | 'thunderstorm' | 'snow';
 
-const weatherType = computed(() => {
+interface StyleObject {
+  [key: string]: string | number;
+}
+
+const props = defineProps<{
+  weatherCode: WeatherCode
+}>();
+
+const weatherType = computed<WeatherType>(() => {
   const code = props.weatherCode;
   if (code.startsWith('01')) return 'clear';
   if (code.startsWith('02') || code.startsWith('03') || code.startsWith('04')) return 'clouds';
@@ -44,7 +48,7 @@ const weatherType = computed(() => {
 });
 
 
-const getRainStyle = () => {
+const getRainStyle = (): StyleObject => {
   const delay = Math.random() * 5;
   const duration = 0.5 + Math.random() * 0.5;
   const left = Math.random() * 100;
@@ -57,7 +61,7 @@ const getRainStyle = () => {
 };
 
 
-const getSnowStyle = () => {
+const getSnowStyle = (): StyleObject => {
   const delay = Math.random() * 5;
   const duration = 5 + Math.random() * 10;
   const left = Math.random() * 100;
@@ -73,7 +77,7 @@ const getSnowStyle = () => {
 };
 
 
-const getCloudStyle = () => {
+const getCloudStyle = (): StyleObject => {
   const delay = Math.random() * 30;
   const duration = 60 + Math.random() * 60;
   const top = Math.random() * 40;
@@ -90,7 +94,7 @@ const getCloudStyle = () => {
 };
 
 
-const getSunRayStyle = (index) => {
+const getSunRayStyle = (index: number): StyleObject => {
   const rotation = (index - 1) * 72; // 360 / 5 = 72 degrees
 
   return {
@@ -99,10 +103,10 @@ const getSunRayStyle = (index) => {
 };
 
 
-const isThunderActive = ref(false);
-let thunderInterval;
+const isThunderActive = ref<boolean>(false);
+let thunderInterval: number | null = null;
 
-const startThunderAnimation = () => {
+const startThunderAnimation = (): void => {
   thunderInterval = setInterval(() => {
     isThunderActive.value = true;
     setTimeout(() => {
@@ -111,7 +115,7 @@ const startThunderAnimation = () => {
   }, 5000);
 };
 
-watch(() => weatherType.value, (newType) => {
+watch(() => weatherType.value, (newType: WeatherType) => {
   if (newType === 'thunderstorm') {
     startThunderAnimation();
   } else {
@@ -143,7 +147,7 @@ onUnmounted(() => {
   top: -20px;
   width: 2px;
   height: 20px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.7));
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.7));
   animation: rain linear infinite;
 }
 
@@ -253,7 +257,7 @@ onUnmounted(() => {
 .sun {
   width: 80px;
   height: 80px;
-  background: radial-gradient(circle, rgba(255,236,95,1) 0%, rgba(255,167,38,1) 100%);
+  background: radial-gradient(circle, rgba(255, 236, 95, 1) 0%, rgba(255, 167, 38, 1) 100%);
   border-radius: 50%;
   box-shadow: 0 0 50px rgba(255, 236, 95, 0.7);
   animation: pulse 5s infinite alternate;
@@ -265,7 +269,7 @@ onUnmounted(() => {
   left: 50%;
   width: 120px;
   height: 4px;
-  background: linear-gradient(to right, rgba(255,236,95,0.8), rgba(255,236,95,0));
+  background: linear-gradient(to right, rgba(255, 236, 95, 0.8), rgba(255, 236, 95, 0));
   transform-origin: 0 0;
 }
 
