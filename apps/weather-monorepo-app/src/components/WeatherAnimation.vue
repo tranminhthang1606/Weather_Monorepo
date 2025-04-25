@@ -23,15 +23,18 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
-import {ref, computed, onMounted, onUnmounted, watch} from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import {
+  WeatherCode,
+  WeatherType,
+  RainStyle,
+  SnowStyle,
+  CloudStyle,
+  SunRayStyle
+} from '@/common/weatherInterfaces';
 
-type WeatherCode = string;
-type WeatherType = 'clear' | 'clouds' | 'rain' | 'thunderstorm' | 'snow';
-
-interface StyleObject {
-  [key: string]: string | number;
-}
 
 const props = defineProps<{
   weatherCode: WeatherCode
@@ -39,16 +42,15 @@ const props = defineProps<{
 
 const weatherType = computed<WeatherType>(() => {
   const code = props.weatherCode;
-  if (code.startsWith('01')) return 'clear';
-  if (code.startsWith('02') || code.startsWith('03') || code.startsWith('04')) return 'clouds';
-  if (code.startsWith('09') || code.startsWith('10')) return 'rain';
-  if (code.startsWith('11')) return 'thunderstorm';
-  if (code.startsWith('13')) return 'snow';
-  return 'clear';
+  if (code.startsWith('01')) return WeatherType.CLEAR;
+  if (code.startsWith('02') || code.startsWith('03') || code.startsWith('04')) return WeatherType.CLOUDS;
+  if (code.startsWith('09') || code.startsWith('10')) return WeatherType.RAIN;
+  if (code.startsWith('11')) return WeatherType.THUNDERSTORM;
+  if (code.startsWith('13')) return WeatherType.SNOW;
+  return WeatherType.CLEAR;
 });
 
-
-const getRainStyle = (): StyleObject => {
+const getRainStyle = (): RainStyle => {
   const delay = Math.random() * 5;
   const duration = 0.5 + Math.random() * 0.5;
   const left = Math.random() * 100;
@@ -60,8 +62,7 @@ const getRainStyle = (): StyleObject => {
   };
 };
 
-
-const getSnowStyle = (): StyleObject => {
+const getSnowStyle = (): SnowStyle => {
   const delay = Math.random() * 5;
   const duration = 5 + Math.random() * 10;
   const left = Math.random() * 100;
@@ -76,8 +77,7 @@ const getSnowStyle = (): StyleObject => {
   };
 };
 
-
-const getCloudStyle = (): StyleObject => {
+const getCloudStyle = (): CloudStyle => {
   const delay = Math.random() * 30;
   const duration = 60 + Math.random() * 60;
   const top = Math.random() * 40;
@@ -93,15 +93,13 @@ const getCloudStyle = (): StyleObject => {
   };
 };
 
-
-const getSunRayStyle = (index: number): StyleObject => {
+const getSunRayStyle = (index: number): SunRayStyle => {
   const rotation = (index - 1) * 72; // 360 / 5 = 72 degrees
 
   return {
     transform: `rotate(${rotation}deg)`
   };
 };
-
 
 const isThunderActive = ref<boolean>(false);
 let thunderInterval: number | null = null;
@@ -116,7 +114,7 @@ const startThunderAnimation = (): void => {
 };
 
 watch(() => weatherType.value, (newType: WeatherType) => {
-  if (newType === 'thunderstorm') {
+  if (newType === WeatherType.THUNDERSTORM) {
     startThunderAnimation();
   } else {
     clearInterval(thunderInterval);
@@ -124,7 +122,7 @@ watch(() => weatherType.value, (newType: WeatherType) => {
 });
 
 onMounted(() => {
-  if (weatherType.value === 'thunderstorm') {
+  if (weatherType.value === WeatherType.THUNDERSTORM) {
     startThunderAnimation();
   }
 });

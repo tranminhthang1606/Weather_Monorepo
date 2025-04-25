@@ -9,5 +9,13 @@
     {
       "path": "./tsconfig.spec.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@weather-monorepo/api": ["../../../packages/api/src/index.ts"],
+      "@weather-monorepo/hooks": ["../../../packages/hooks/src/index.ts"],
+      "@weather-monorepo/utils": ["../../../packages/utils/src/index.ts"],
+    }
+  }
 }
