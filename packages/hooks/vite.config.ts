@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { resolve } from 'path';
 
 export default defineConfig(() => ({
   root: __dirname,
@@ -14,6 +15,14 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
     }),
   ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@weather-monorepo/api': resolve(__dirname, '../../packages/api/src'),
+      '@weather-monorepo/utils': resolve(__dirname, '../../packages/utils/src'),
+      '@weather-monorepo/hooks': resolve(__dirname, '../../packages/hooks/src')
+    }
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

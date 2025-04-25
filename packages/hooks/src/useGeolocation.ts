@@ -15,7 +15,7 @@ interface GeolocationResult {
 
 
 export function useGeolocation(): GeolocationResult {
-  const coords = ref<Coordinates>(null);
+  const coords = ref<Coordinates>({ latitude: 0, longitude: 0 });
   const error = ref<string>('');
   const isLoading = ref<boolean>(false);
 

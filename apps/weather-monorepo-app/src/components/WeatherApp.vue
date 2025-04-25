@@ -11,7 +11,7 @@
           <div class="text-center md:text-left">
             <h1 class="text-3xl md:text-4xl font-bold text-white flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/>
+                <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
               </svg>
               Weather App
             </h1>
@@ -35,14 +35,14 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd"
                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clip-rule="evenodd"/>
+                    clip-rule="evenodd" />
             </svg>
             {{ error }}
           </p>
         </div>
 
 
-        <WeatherSkeleton v-if="isLoading && !weather" class="mt-6"/>
+        <WeatherSkeleton v-if="isLoading && !weather" class="mt-6" />
 
 
         <transition
@@ -82,52 +82,23 @@
   </div>
 </template>
 <script setup lang="ts">
-import {ref, computed, onMounted, onUnmounted, watch, Ref} from 'vue'
-import WeatherSearch from './WeatherSearch.vue'
-import WeatherDetails from './WeatherDetails.vue'
-import RecentSearches from './RecentSearches.vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import WeatherSearch from './WeatherSearch.vue';
+import WeatherDetails from './WeatherDetails.vue';
+import RecentSearches from './RecentSearches.vue';
 import {
   useWeather,
   useGeolocation,
   useLocalStorage,
   useUrlParams
-} from '@weather-monorepo/hooks'
-import WeatherSkeleton from "@/components/WeatherSkeleton.vue";
-
-interface WeatherOptions {
-  units: 'metric' | 'imperial' | 'standard',
-  lang: string
-}
-
-interface UrlParams {
-  city?: string;
-  units?: string;
-  lang?: string;
-
-  [key: string]: string | undefined;
-}
-
-interface UrlParamsHook {
-  params: Ref<UrlParams>;
-  setParams: (params: UrlParams) => void;
-  getParam: (key: string, defaultValue?: string) => string | undefined;
-  cleanup: () => void;
-}
-
-interface GeolocationHook {
-  getCurrentPosition: () => Promise<GeolocationPosition>;
-  error: any;
-  isLoading: boolean;
-}
-
-interface LocalStorageHook<T> {
-  value: T;
-  setValue: (value: T) => void;
-}
+} from '@weather-monorepo/hooks';
+import WeatherSkeleton from '@/components/WeatherSkeleton.vue';
+import { WeatherOptions} from '@/common/weatherInterfaces';
+import { UrlParams, UrlParamsHook } from '@/common/urlInterfaces';
+import { GeolocationHook, LocalStorageHook } from '@/common/hookInterface';
 
 const backgroundClass = computed<string>(() => {
   const hour = new Date().getHours();
-
 
   if (weather.value) {
     const weatherCode = weather.value.weather[0].icon;
@@ -157,7 +128,6 @@ const backgroundClass = computed<string>(() => {
     }
   }
 
-
   if (hour >= 5 && hour < 8) {
     // Bình minh
     return 'bg-gradient-to-br from-orange-300 via-purple-300 to-blue-400';
@@ -173,20 +143,14 @@ const backgroundClass = computed<string>(() => {
   }
 });
 
+const { params, setParams, getParam, cleanup } = useUrlParams() as UrlParamsHook;
 
-const isDevelopment = computed<boolean>(() => {
-  return import.meta.env.MODE === 'development' ||
-    import.meta.env.DEV ||
-    window.location.hostname === 'localhost' ||
-    window.location.search.includes('debug=true');
-});
-
-
-const {params, setParams, getParam, cleanup} = useUrlParams() as UrlParamsHook
-const initialOptions = {
+// Sử dụng type assertion với as const để đảm bảo kiểu dữ liệu chính xác
+const initialOptions: WeatherOptions = {
   units: getParam('units', 'metric') as WeatherOptions['units'],
   lang: getParam('lang', 'vi') as WeatherOptions['lang']
-}
+};
+
 const {
   weather,
   error,
@@ -195,124 +159,101 @@ const {
   updateOptions,
   fetchWeatherByCity,
   fetchWeatherByCoords
-} = useWeather(initialOptions)
-const {getCurrentPosition} = useGeolocation() as GeolocationHook
-const recentSearches = useLocalStorage('recentSearches', []) as LocalStorageHook<string[]>
+} = useWeather(initialOptions);
 
+const { getCurrentPosition } = useGeolocation() as GeolocationHook;
+const recentSearches = useLocalStorage('recentSearches', []) as LocalStorageHook<string[]>;
 
-const searchQuery = ref<string>(getParam('city', ''))
-
+const searchQuery = ref<string>(getParam('city', ''));
 
 const searchLocation = async (): Promise<void> => {
-  if (!searchQuery.value.trim()) return
-
+  if (!searchQuery.value.trim()) return;
 
   setParams({
     city: searchQuery.value,
     units: weatherOptions?.units,
     lang: weatherOptions?.lang
-  })
+  });
 
-  const data = await fetchWeatherByCity(searchQuery.value)
+  const data = await fetchWeatherByCity(searchQuery.value);
 
-  if (data) {
-
-    if (data) {
-      if (!recentSearches.value.includes(searchQuery.value)) {
-        recentSearches.setValue([
-          searchQuery.value,
-          ...recentSearches.value.filter(item => item !== searchQuery.value).slice(0, 4)
-        ]);
-      }
-    }
+  // Chỉ kiểm tra data một lần
+  if (data && !recentSearches.value.includes(searchQuery.value)) {
+    recentSearches.setValue([
+      searchQuery.value,
+      ...recentSearches.value.filter(item => item !== searchQuery.value).slice(0, 4)
+    ]);
   }
-}
+};
 
-const loadRecentSearch = (city: string) => {
-  searchQuery.value = city
-  searchLocation()
-}
-
-// const updateSettings = (newSettings: Partial<WeatherOptions>) => {
-//
-//   updateOptions(newSettings)
-//
-//
-//   setParams({
-//     units: newSettings.units,
-//     lang: newSettings.lang
-//   })
-//
-//
-//   if (searchQuery.value) {
-//     searchLocation()
-//   }
-// }
-
+const loadRecentSearch = (city: string): void => {
+  searchQuery.value = city;
+  searchLocation();
+};
 
 watch(() => params.value, (newParams: UrlParams) => {
-  const updates = {}
-  let needsRefresh = false
+  // Tạo một đối tượng với kiểu rõ ràng
+  const updates: Partial<WeatherOptions> = {};
+  let needsRefresh = false;
 
   if (newParams.city && newParams.city !== searchQuery.value) {
-    searchQuery.value = newParams.city
-    needsRefresh = true
+    searchQuery.value = newParams.city;
+    needsRefresh = true;
   }
 
-  if (newParams.units && newParams.units !== weatherOptions.units) {
-    updates.units = newParams.units
+  if (newParams.units && weatherOptions && newParams.units !== weatherOptions.units) {
+    updates.units = newParams.units as WeatherOptions['units'];
   }
 
-  if (newParams.lang && newParams.lang !== weatherOptions.lang) {
-    updates.lang = newParams.lang
+  if (newParams.lang && weatherOptions && newParams.lang !== weatherOptions.lang) {
+    updates.lang = newParams.lang as WeatherOptions['lang'];
   }
 
   if (Object.keys(updates).length > 0) {
-    updateOptions(updates)
-    needsRefresh = true
+    updateOptions(updates);
+    needsRefresh = true;
   }
 
   if (needsRefresh && searchQuery.value) {
-    fetchWeatherByCity(searchQuery.value)
+    fetchWeatherByCity(searchQuery.value);
   }
-}, {deep: true})
-
+}, { deep: true });
 
 onMounted(async () => {
-
-  const cityFromUrl = getParam('city')
+  const cityFromUrl = getParam('city');
 
   if (cityFromUrl) {
-
-    searchQuery.value = cityFromUrl
-    await fetchWeatherByCity(cityFromUrl)
+    searchQuery.value = cityFromUrl;
+    await fetchWeatherByCity(cityFromUrl);
   } else {
-
     try {
-      const position = await getCurrentPosition()
-      const data = await fetchWeatherByCoords(position.coords.latitude, position.coords.longitude)
-      if (data) {
-        searchQuery.value = data.name
+      const position = await getCurrentPosition();
+      const data = await fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
 
-        setParams({
-          city: data?.name,
-          units: weatherOptions?.units,
-          lang: weatherOptions?.lang
-        })
+      if (data) {
+        searchQuery.value = data.name;
+
+        // Đảm bảo weatherOptions không null trước khi sử dụng
+        if (weatherOptions) {
+          setParams({
+            city: data.name,
+            units: weatherOptions.units,
+            lang: weatherOptions.lang
+          });
+        }
       }
     } catch (err) {
-      console.log('Could not get current location:', err)
+      console.log('Could not get current location:', err);
 
       if (!weather.value) {
-        searchQuery.value = 'Hanoi'
-        searchLocation()
+        searchQuery.value = 'Hanoi';
+        searchLocation();
       }
     }
   }
-})
-
+});
 
 onUnmounted(() => {
-  cleanup()
-})
+  cleanup();
+});
 </script>

@@ -53,7 +53,7 @@ defineProps({
 // const emit = defineEmits(['update:modelValue', 'search']);
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
-  (e: 'search', value: string): void
+  (e: 'search'): void
 }>();
 
 const search = (): void => {
